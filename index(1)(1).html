@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="OrionPulse AI Objection Handling Agent — detect objections, understand context, recommend responses and help sales teams move opportunities forward.">
+<meta name="theme-color" content="#05070b">
+<title>AI Objection Handling Agent — OrionPulse</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#05070b;
+  --surface:#090d14;
+  --surface2:#0e141e;
+  --text:#f6f8fc;
+  --muted:#8d98aa;
+  --line:rgba(255,255,255,.09);
+  --line2:rgba(255,255,255,.16);
+  --blue:#5c7dff;
+  --cyan:#67dcff;
+  --violet:#a080ff;
+  --green:#55d7a0;
+  --amber:#e9bf66;
+  --red:#ff7188;
+  --radius:22px;
+  --shadow:0 35px 110px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  color:var(--text);
+  background:
+    radial-gradient(circle at 78% 3%,rgba(92,125,255,.19),transparent 31rem),
+    radial-gradient(circle at 8% 46%,rgba(103,220,255,.06),transparent 27rem),
+    var(--bg);
+  font-family:"DM Sans",sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.19;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+}
+a{text-decoration:none;color:inherit}
+button,input,textarea,select{font:inherit}
+.container{width:min(1180px,92%);margin:auto}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 11px;
+  border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);
+  color:#cbd4e3;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 16px var(--green)}
+
+nav{
+  position:fixed;z-index:50;top:16px;left:50%;transform:translateX(-50%);
+  width:min(1120px,92%);height:64px;padding:0 18px;
+  display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--line);border-radius:18px;background:rgba(6,9,14,.76);
+  backdrop-filter:blur(24px);box-shadow:0 18px 60px rgba(0,0,0,.25)
+}
+.brand{font:800 20px Manrope,sans-serif;letter-spacing:-.05em}
+.brand span{color:var(--cyan)}
+.navlinks{display:flex;gap:23px;color:#aab5c6;font-size:13px}
+.navlinks a:hover{color:#fff}
+
+.primary,.nav-cta{
+  display:inline-flex;justify-content:center;align-items:center;
+  color:#fff;border:0;cursor:pointer;
+  background:linear-gradient(135deg,#587aff,#8066ff);
+  box-shadow:0 14px 35px rgba(92,125,255,.23);
+  transition:.2s
+}
+.nav-cta{padding:10px 15px;border-radius:11px;font-size:12px;font-weight:800}
+.primary{padding:14px 19px;border-radius:13px;font-weight:800}
+.primary:hover,.nav-cta:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.secondary{
+  display:inline-flex;justify-content:center;align-items:center;
+  padding:13px 18px;border-radius:13px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.04);color:#e8ecf4;cursor:pointer
+}
+
+.hero{padding:178px 0 94px}
+.hero-grid{display:grid;grid-template-columns:1.03fr .97fr;gap:68px;align-items:center}
+h1,h2,h3{font-family:Manrope,sans-serif;letter-spacing:-.045em;line-height:1.06}
+h1{font-size:clamp(48px,7vw,82px);margin:21px 0}
+h1 em{
+  font-style:normal;background:linear-gradient(100deg,#fff 20%,#8fb8ff 54%,#ad91ff);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.hero-copy{max-width:690px;color:var(--muted);font-size:18px}
+.actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:31px}
+.micro{display:flex;gap:16px;flex-wrap:wrap;margin-top:21px;color:#6e7a8d;font-size:11px}
+.micro span:before{content:"✓";color:var(--green);margin-right:6px}
+
+/* AI objection console */
+.console{
+  position:relative;padding:15px;border:1px solid var(--line);border-radius:28px;
+  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+  box-shadow:var(--shadow);overflow:hidden
+}
+.console:after{
+  content:"";position:absolute;width:300px;height:300px;right:-100px;top:-100px;
+  border-radius:50%;background:rgba(92,125,255,.18);filter:blur(75px)
+}
+.window{
+  position:relative;z-index:1;background:#070b11;border:1px solid var(--line);
+  border-radius:20px;overflow:hidden
+}
+.windowbar{
+  height:48px;display:flex;align-items:center;gap:7px;padding:0 15px;
+  border-bottom:1px solid var(--line)
+}
+.windowbar i{width:8px;height:8px;border-radius:50%;background:#4d586a}
+.windowtitle{margin:auto;color:#697488;font-size:11px}
+.live{display:flex;align-items:center;gap:6px;color:#8da0b8;font-size:10px}
+.live .dot{width:6px;height:6px}
+
+.chat{padding:18px;display:grid;gap:10px}
+.bubble{max-width:88%;padding:12px 14px;border-radius:14px;font-size:12px}
+.prospect{justify-self:end;background:linear-gradient(135deg,#526fff,#7962ff);color:#fff}
+.ai{background:#101721;border:1px solid var(--line);color:#dce5f1}
+
+.signal{
+  border:1px solid rgba(233,191,102,.19);background:rgba(233,191,102,.045);
+  border-radius:16px;padding:14px
+}
+.signal-top{display:flex;justify-content:space-between;gap:12px}
+.signal small{color:#8b7955;font-size:9px;letter-spacing:.1em}
+.signal strong{font-size:11px;color:#f1cf82}
+.signal-main{display:flex;align-items:center;gap:10px;margin-top:9px}
+.signal-icon{
+  width:30px;height:30px;display:grid;place-items:center;border-radius:9px;
+  background:rgba(233,191,102,.08);border:1px solid rgba(233,191,102,.16);color:var(--amber)
+}
+.signal-main b{font-size:12px}.signal-main span{display:block;font-size:10px;color:#7d889b}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:#111a27;color:#aab6c8;font-size:9px}
+
+.recommendation{
+  padding:14px;border:1px solid rgba(103,220,255,.14);border-radius:16px;
+  background:rgba(103,220,255,.035)
+}
+.rec-head{display:flex;justify-content:space-between;align-items:center}
+.rec-head small{font-size:9px;color:#708097;letter-spacing:.08em}
+.confidence{color:#70e1b2;font-size:10px;font-weight:800}
+.recommendation p{font-size:11px;color:#d3dce8;margin-top:9px}
+.response{
+  margin-top:10px;padding:10px 11px;border-radius:11px;
+  background:#0b111a;border:1px solid var(--line);font-size:10px;color:#9eabbd
+}
+.response b{color:#dce5f1}
+.typing{display:flex;gap:4px;width:max-content;padding:10px 13px;border:1px solid var(--line);background:#101721;border-radius:14px}
+.typing i{width:5px;height:5px;border-radius:50%;background:#8492a6;animation:t 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes t{50%{opacity:.2;transform:translateY(-2px)}}
+
+section{padding:90px 0}
+.section-head{max-width:730px;margin-bottom:38px}
+.section-head h2{font-size:clamp(35px,5vw,53px);margin:15px 0}
+.section-head p{color:var(--muted)}
+
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{
+  padding:25px;border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.015));
+  transition:.25s
+}
+.card:hover{transform:translateY(-4px);border-color:rgba(120,155,255,.27)}
+.icon{
+  width:42px;height:42px;display:grid;place-items:center;margin-bottom:19px;border-radius:13px;
+  background:rgba(92,125,255,.11);border:1px solid rgba(92,125,255,.2);font-size:17px
+}
+.card h3{font-size:18px;margin-bottom:8px}.card p{font-size:13px;color:var(--muted)}
+
+.workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.step{padding:21px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.step .num{font:800 10px Manrope;color:#87a5ff}
+.step h3{font-size:15px;margin:10px 0}.step p{font-size:11px;color:var(--muted)}
+
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mode{
+  padding:27px;border:1px solid var(--line);border-radius:22px;background:var(--surface)
+}
+.mode h3{font-size:22px;margin:14px 0 8px}.mode p{font-size:13px;color:var(--muted)}
+.mode ul{list-style:none;margin-top:18px;display:grid;gap:8px;color:#aeb8c8;font-size:12px}
+.mode li:before{content:"✓";color:var(--green);margin-right:8px}
+.mode.copilot{background:linear-gradient(145deg,rgba(92,125,255,.10),rgba(255,255,255,.015));border-color:rgba(92,125,255,.25)}
+
+.demo{
+  display:grid;grid-template-columns:.8fr 1.2fr;gap:20px;padding:27px;
+  border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.035)
+}
+.demo h2{font-size:42px;margin:18px 0}.demo-copy p{color:var(--muted)}
+.objection-list{margin-top:25px;display:flex;flex-wrap:wrap;gap:7px}
+.objection{
+  padding:7px 9px;border:1px solid var(--line);border-radius:9px;
+  background:rgba(255,255,255,.025);font-size:10px;color:#aeb9c9
+}
+form{display:grid;gap:11px}
+input,textarea,select{
+  width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  background:#080c12;color:#fff;outline:none
+}
+input:focus,textarea:focus,select:focus{
+  border-color:rgba(103,220,255,.43);box-shadow:0 0 0 3px rgba(103,220,255,.06)
+}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.success{
+  display:none;padding:13px;border-radius:12px;border:1px solid rgba(84,214,160,.25);
+  background:rgba(84,214,160,.07);color:#aaf0d3;font-size:12px
+}
+.form-note{font-size:10px;color:#657184}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plan{padding:28px;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
+.plan.featured{
+  border-color:rgba(92,125,255,.48);
+  background:linear-gradient(160deg,rgba(92,125,255,.12),rgba(255,255,255,.02))
+}
+.price{font:800 34px Manrope;margin:15px 0}.price small{font:400 12px;color:var(--muted)}
+.plan ul{list-style:none;display:grid;gap:10px;margin:20px 0 25px;color:#adb7c7;font-size:13px}
+.plan li:before{content:"✓";color:var(--green);margin-right:9px}
+
+.contact-box{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:25px;padding:35px;
+  border:1px solid var(--line);border-radius:28px;
+  background:radial-gradient(circle at 80% 0%,rgba(92,125,255,.16),transparent 30rem),var(--surface)
+}
+.contact-box h2{font-size:39px;margin:13px 0}.contact-box p{color:var(--muted);max-width:650px}
+.contact-actions{display:flex;gap:10px;flex-wrap:wrap}
+.whatsapp{background:linear-gradient(135deg,#1ca76a,#38d493);box-shadow:0 14px 35px rgba(39,196,121,.18)}
+
+footer{border-top:1px solid var(--line);padding:38px 0;color:#687486;font-size:11px}
+.footer-row{display:flex;justify-content:space-between;gap:20px}
+
+@media(max-width:1000px){
+  .hero-grid,.demo,.contact-box{grid-template-columns:1fr}
+  .workflow{grid-template-columns:repeat(3,1fr)}
+  .grid3,.plans{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  .navlinks{display:none}
+  .hero{padding-top:135px}
+  .grid3,.plans,.workflow,.modes,.row{grid-template-columns:1fr}
+  h1{font-size:48px}
+  .footer-row{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a class="brand" href="#top">Orion<span>Pulse</span></a>
+  <div class="navlinks">
+    <a href="#features">Capabilities</a>
+    <a href="#how">How it works</a>
+    <a href="#modes">Modes</a>
+    <a href="#demo">Live demo</a>
+  </div>
+  <a class="nav-cta" href="#demo">Try Agent</a>
+</nav>
+
+<main id="top">
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> Sales Agent 07 · AI Objection Handling</span>
+      <h1>Don't lose the sale at the <em>objection.</em></h1>
+      <p class="hero-copy">
+        An intelligent sales agent that detects objections, understands the context behind them,
+        recommends the right response strategy and helps your team move qualified opportunities forward.
+      </p>
+
+      <div class="actions">
+        <a class="primary" href="#demo">Run a live demo →</a>
+        <a class="secondary" href="#how">Explore the workflow</a>
+      </div>
+
+      <div class="micro">
+        <span>Objection detection</span>
+        <span>Context-aware responses</span>
+        <span>Salesperson copilot</span>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="window">
+        <div class="windowbar">
+          <i></i><i></i><i></i>
+          <span class="windowtitle">OrionPulse / AI Objection Handling Agent</span>
+          <span class="live"><span class="dot"></span> Analyzing</span>
+        </div>
+
+        <div class="chat">
+          <div class="bubble prospect">₹50,000 is too expensive for a website.</div>
+
+          <div class="signal">
+            <div class="signal-top">
+              <small>OBJECTION DETECTED</small>
+              <strong>MEDIUM</strong>
+            </div>
+            <div class="signal-main">
+              <div class="signal-icon">₹</div>
+              <div>
+                <b>Price / Value Concern</b>
+                <span>Possible unresolved value perception</span>
+              </div>
+            </div>
+            <div class="tags">
+              <span class="tag">Price</span>
+              <span class="tag">Hesitation</span>
+              <span class="tag">Still engaged</span>
+            </div>
+          </div>
+
+          <div class="recommendation">
+            <div class="rec-head">
+              <small>AI RESPONSE STRATEGY</small>
+              <span class="confidence">91% confidence</span>
+            </div>
+            <p><b>Don't discount yet.</b> Clarify what the prospect is comparing the price against, then reframe value around their business outcome.</p>
+            <div class="response">
+              <b>Suggested response:</b><br>
+              “I understand. Before we look at reducing the scope, may I ask what you're comparing the investment against?”
+            </div>
+          </div>
+
+          <div class="bubble ai">
+            I'm going to clarify the concern first rather than immediately offering a discount.
+          </div>
+
+          <div class="typing"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Objection intelligence</span>
+      <h2>Understand the objection before answering it.</h2>
+      <p>The agent is designed to identify what is actually blocking the prospect — not simply send a canned rebuttal.</p>
+    </div>
+
+    <div class="grid3">
+      <div class="card"><div class="icon">◈</div><h3>Objection Detection</h3><p>Recognize price, timing, trust, competition, approval, uncertainty and other common sales objections.</p></div>
+      <div class="card"><div class="icon">◎</div><h3>Context Analysis</h3><p>Look at the conversation and identify the likely concern behind what the prospect said.</p></div>
+      <div class="card"><div class="icon">✦</div><h3>Response Strategy</h3><p>Choose whether to clarify, educate, reframe value, provide evidence, offer an alternative or escalate.</p></div>
+      <div class="card"><div class="icon">↗</div><h3>Suggested Replies</h3><p>Give the salesperson concise, contextual language they can review, edit and use.</p></div>
+      <div class="card"><div class="icon">◉</div><h3>Intent Monitoring</h3><p>Track whether the prospect remains engaged, becomes more interested or moves toward disengagement.</p></div>
+      <div class="card"><div class="icon">⚑</div><h3>Smart Escalation</h3><p>Flag complex negotiations, sensitive cases and high-value opportunities for human intervention.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Five-stage response engine</span>
+      <h2>From resistance to the next step.</h2>
+      <p>The customer doesn't need to understand the AI. They only need to see how it helps the sales process.</p>
+    </div>
+
+    <div class="workflow">
+      <div class="step"><span class="num">01</span><h3>Detect</h3><p>Identify the objection.</p></div>
+      <div class="step"><span class="num">02</span><h3>Understand</h3><p>Read the conversation context.</p></div>
+      <div class="step"><span class="num">03</span><h3>Choose</h3><p>Select a response strategy.</p></div>
+      <div class="step"><span class="num">04</span><h3>Respond</h3><p>Suggest the next message.</p></div>
+      <div class="step"><span class="num">05</span><h3>Advance</h3><p>Move toward a next step or handoff.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="modes">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Two deployment modes</span>
+      <h2>AI can speak for the process — or work beside your salesperson.</h2>
+      <p>Different businesses need different levels of automation.</p>
+    </div>
+
+    <div class="modes">
+      <div class="mode">
+        <span class="eyebrow">Autonomous mode</span>
+        <h3>AI handles the conversation.</h3>
+        <p>Useful for first-stage sales conversations where approved messaging and business rules are clear.</p>
+        <ul>
+          <li>Detect common objections</li>
+          <li>Ask clarifying questions</li>
+          <li>Provide approved information</li>
+          <li>Monitor buying intent</li>
+          <li>Escalate when human judgment is needed</li>
+        </ul>
+      </div>
+
+      <div class="mode copilot">
+        <span class="eyebrow">Sales copilot mode</span>
+        <h3>AI coaches your salesperson.</h3>
+        <p>Recommended for higher-value or complex sales where the human remains in control of the conversation.</p>
+        <ul>
+          <li>Detect objection in real time</li>
+          <li>Explain what may be behind it</li>
+          <li>Recommend response strategy</li>
+          <li>Generate suggested replies</li>
+          <li>Help the salesperson avoid premature discounting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="container">
+    <div class="demo">
+      <div class="demo-copy">
+        <span class="eyebrow">Interactive onboarding</span>
+        <h2>Teach the agent how your sales team sells.</h2>
+        <p>
+          Tell OrionPulse about your product, common objections and preferred sales approach.
+          This front-end form is ready to become the onboarding layer for the real AI system.
+        </p>
+
+        <div class="objection-list">
+          <span class="objection">Too expensive</span>
+          <span class="objection">Need to think</span>
+          <span class="objection">Send details</span>
+          <span class="objection">Already have provider</span>
+          <span class="objection">Bad timing</span>
+          <span class="objection">Need approval</span>
+          <span class="objection">Don't see the value</span>
+          <span class="objection">Comparing competitors</span>
+        </div>
+      </div>
+
+      <form id="objectionForm">
+        <div class="row">
+          <input name="name" required placeholder="Your name">
+          <input name="email" type="email" required placeholder="Business email">
+        </div>
+
+        <div class="row">
+          <input name="business" required placeholder="Business / company">
+          <input name="website" placeholder="Website (optional)">
+        </div>
+
+        <input name="product" required placeholder="What product/service are you selling?">
+
+        <select name="mode" required>
+          <option value="">Preferred agent mode</option>
+          <option>AI handles the conversation</option>
+          <option>AI sales copilot for my team</option>
+          <option>Not sure — recommend one</option>
+        </select>
+
+        <textarea name="objections" placeholder="What objections do your salespeople hear most often?"></textarea>
+
+        <textarea name="salesApproach" placeholder="How should the AI respond? For example: consultative, premium, friendly, concise, never discount without approval."></textarea>
+
+        <button class="primary" type="submit">Design my objection agent →</button>
+
+        <div class="success" id="success">
+          Your AI Objection Handling Agent request has been captured. Connect this form to your OrionPulse backend/API to make the agent operational.
+        </div>
+
+        <div class="form-note">
+          By submitting, you agree to be contacted by OrionPulse regarding AI automation services.
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="plans">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Deployment options</span>
+      <h2>Start simple. Scale into sales automation.</h2>
+      <p>Package the agent as a product, customized implementation or managed sales intelligence system.</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan">
+        <h3>Starter</h3>
+        <div class="price">₹999 <small>+</small></div>
+        <ul>
+          <li>Hosted agent page</li>
+          <li>Basic objection library</li>
+          <li>Starter response flows</li>
+          <li>Setup instructions</li>
+        </ul>
+        <a class="secondary" href="#demo">Get started</a>
+      </div>
+
+      <div class="plan featured">
+        <span class="eyebrow">Recommended</span>
+        <h3 style="margin-top:14px">Business</h3>
+        <div class="price">₹5,000+ <small>setup</small></div>
+        <ul>
+          <li>Customized objection handling</li>
+          <li>Business-specific knowledge</li>
+          <li>Sales workflow integration</li>
+          <li>Lead notifications</li>
+          <li>Basic automation</li>
+        </ul>
+        <a class="primary" href="#demo">Request setup</a>
+      </div>
+
+      <div class="plan">
+        <h3>Managed</h3>
+        <div class="price">₹20,000+ <small>custom</small></div>
+        <ul>
+          <li>Custom sales intelligence system</li>
+          <li>CRM / communication integrations</li>
+          <li>Advanced objection analytics</li>
+          <li>Optimization</li>
+          <li>Ongoing support</li>
+        </ul>
+        <a class="secondary" href="#contact">Talk to OrionPulse</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="contact-box">
+      <div>
+        <span class="eyebrow">Deploy with OrionPulse</span>
+        <h2>Turn objections into better sales conversations.</h2>
+        <p>
+          Want this agent customized around your products, pricing, sales scripts,
+          objections and approval rules? Start a conversation with OrionPulse.
+        </p>
+      </div>
+
+      <div class="contact-actions">
+        <a class="primary" href="mailto:service@orionpulse.co.in?subject=AI%20Objection%20Handling%20Agent%20Setup">Email OrionPulse</a>
+        <a class="primary whatsapp" target="_blank" rel="noopener"
+           href="https://wa.me/919862903690?text=Hi%20OrionPulse%2C%20I%27m%20interested%20in%20the%20AI%20Objection%20Handling%20Agent.">
+          WhatsApp Us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container footer-row">
+    <span>© 2026 OrionPulse · AI Automation · Digital Marketing · Web Design · SEO</span>
+    <span>service@orionpulse.co.in · +91 98629 03690</span>
+  </div>
+</footer>
+
+<script>
+/*
+  ORIONPULSE — AI OBJECTION HANDLING AGENT
+  ----------------------------------------
+  This page is the premium front-end / onboarding experience.
+
+  Production architecture:
+  1. POST the form data to your OrionPulse backend.
+  2. Store the business's approved product/service knowledge.
+  3. Build an objection library and response policies.
+  4. Pass conversation context to the AI.
+  5. Detect objection type + severity + buying intent.
+  6. Generate a suggested response or autonomous reply.
+  7. Escalate high-value / sensitive / negotiation cases to a human.
+  8. Log outcomes for future sales optimization.
+
+  Suggested API:
+  POST /api/objection-handling-agent
+
+  OrionPulse:
+  service@orionpulse.co.in
+  +919862903690
+*/
+
+const form = document.getElementById("objectionForm");
+const success = document.getElementById("success");
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  // Replace this demo block with your production API:
+  //
+  // const response = await fetch("/api/objection-handling-agent", {
+  //   method: "POST",
+  //   headers: {"Content-Type": "application/json"},
+  //   body: JSON.stringify(data)
+  // });
+  //
+  // const result = await response.json();
+
+  console.log("OrionPulse AI Objection Handling Agent:", data);
+
+  success.style.display = "block";
+  form.reset();
+
+  setTimeout(() => {
+    success.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }, 50);
+});
+</script>
+
+</body>
+</html>
